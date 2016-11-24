@@ -2,8 +2,10 @@
   (:require-macros
     [gadjett.core :as gadjett :refer [dbg]]
     [purnam.core :refer [!]]
+    [klipse.lang.clojure.env :refer [doc]]
     [cljs.core.async.macros :refer [go go-loop]])
   (:require
+    [klipse.lang.clojure.env :refer [current-ns st]]
     klipse.lang.clojure.bundled-namespaces
     gadjett.core-fn
     cljsjs.codemirror.mode.clojure
@@ -26,9 +28,7 @@
 (js* "window.cljs.user = {}")
 
 
-(defonce ^:private current-ns (atom 'cljs.user))
 
-(def create-state-eval (memoize cljs/empty-state))
 (def create-state-compile (memoize cljs/empty-state))
 
 (defn display [value {:keys [print-length beautify-strings]}]
@@ -101,14 +101,14 @@
                   *ns* (create-ns @current-ns)
                   compiler/emits (partial my-emits max-eval-duration)]
       ; we have to set `env/*compiler*` because `binding` and core.async don't play well together (https://www.reddit.com/r/Clojure/comments/4wrjw5/withredefs_doesnt_play_well_with_coreasync/) and the code of `eval-str` uses `binding` of `env/*compiler*`.
-      (cljs/eval-str (create-state-eval)
+      (cljs/eval-str (st)
                  s
                  "my.klipse"
                  {:eval my-eval
                   :ns @current-ns
                   :def-emits-var true
                   :verbose verbose
-                  :*compiler* (set! env/*compiler* (create-state-eval))
+                  :*compiler* (set! env/*compiler* (st))
                   :context :expr
                   :static-fns static-fns
                   :load (partial io/load-ns external-libs)}
