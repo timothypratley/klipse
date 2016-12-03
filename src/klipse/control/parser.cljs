@@ -61,12 +61,10 @@
 (defmulti mutate om/dispatch)
 
 (defmethod mutate 'input/save [{:keys [state]} _ {:keys [value]}]
-  {:action (fn [] 
-             (swap! state assoc-in [:input :input] value))})
+  {:action #(swap! state assoc-in [:input :input] value)})
 
 (defmethod mutate 'cljs/compile [{:keys [state]} _ {:keys [value]}]
-  {:action (fn []
-             (go
+  {:action #(go
                (swap! state
                       assoc
                       :compilation
@@ -75,7 +73,7 @@
                                                 :external-libs (external-libs)
                                                 :compile-display-guard (compile-display-guard?)
                                                 :max-eval-duration (max-eval-duration)
-                                                :context (eval-context?)})))))})
+                                                :context (eval-context?)}))))})
 
 
 (defn clean-print-box [state]
@@ -85,15 +83,11 @@
   (swap! state update :evaluation-js #(str % (apply str args))))
 
 (defmethod mutate 'editor/set-mode [{:keys [state]} _ {:keys [value]}]
-  {:action (fn []
-             (js/console.log "set-mode value" value " state " (:editing-mode @state))
-             (swap! state assoc-in [:input :editing-mode] value))})
+  {:action #(swap! state assoc-in [:input :editing-mode] value)})
 
 (defmethod mutate 'clj/eval [{:keys [state]} _ {:keys [value]}]
-  {:action (fn []
-             (js/console.log "eval editing-mode:" (:editing-mode @state))
-             (go
+  {:action #(go
                (clean-print-box state)
                (with-redefs [*print-newline* true
                              *print-fn* (partial append-print-box state)]
-                 (swap! state assoc :evaluation-clj (<! (eval-clj value))))))})
+                 (swap! state assoc :evaluation-clj (<! (eval-clj value)))))})
