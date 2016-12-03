@@ -62,6 +62,7 @@
 (defmulti mutate om/dispatch)
 
 (defmethod mutate 'input/save [{:keys [state]} _ {:keys [value]}]
+  (dbg value)
   {:action #(swap! state assoc-in [:input :input] value)})
 
 (defmethod mutate 'cljs/compile [{:keys [state]} _ {:keys [value]}]
@@ -87,7 +88,8 @@
   {:action #(swap! state assoc-in [:input :editing-mode] value)})
 
 (defmethod mutate 'clj/eval [{:keys [state]} _ {:keys [value]}]
-  {:action #(go
+  {:action #(swap! state assoc :evaluation-clj  [:ok 123])
+   #_(go
                (clean-print-box state)
                (with-redefs [*print-newline* true
                              *print-fn* (partial append-print-box state)]
