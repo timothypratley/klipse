@@ -88,8 +88,7 @@
   {:action #(swap! state assoc-in [:input :editing-mode] value)})
 
 (defmethod mutate 'clj/eval [{:keys [state]} _ {:keys [value]}]
-  {:action #(swap! state assoc :evaluation-clj  [:ok 123])
-   #_(go
+  {:action (go
                (clean-print-box state)
                (with-redefs [*print-newline* true
                              *print-fn* (partial append-print-box state)]
