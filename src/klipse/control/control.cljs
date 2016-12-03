@@ -1,5 +1,5 @@
 (ns ^:figwheel-no-load klipse.control.control
-  (:require 
+  (:require
     [klipse.utils :refer [url-parameters]]
     [klipse.control.parser :as parser]
     [om.next :as om]))
@@ -31,8 +31,7 @@
      :mutate parser/mutate}))
 
 (defn reconciler [initial-state]
+  (swap! app-state merge initial-state)
   (om/reconciler
-    {:state (swap! app-state merge initial-state)
+    {:state app-state
      :parser parser}))
-
-
